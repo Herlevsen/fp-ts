@@ -788,3 +788,18 @@ export {
    */
   fromEither
 }
+
+type BindingLambda <A> = (bind: OptionBindFunction) => Option<A>
+type OptionBindFunction = <A> (option: Option<A>) => A
+
+export function binding<A>(bindingLambda: BindingLambda<A>): Option<A> {
+  try {
+    return bindingLambda(<A>(option: Option<A>) => {
+      if (isSome(option)) return option.value
+      throw new Error('MonadBindingShortCircuit')
+    })
+  } catch (e) {
+    if (e.message !== 'MonadBindingShortCircuit') throw e
+    return none
+  }
+}

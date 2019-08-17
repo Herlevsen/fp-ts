@@ -387,4 +387,29 @@ describe('Option', () => {
     assert.strictEqual(O.fromEither(left('a')), O.none)
     assert.deepStrictEqual(O.fromEither(right(1)), O.some(1))
   })
+
+  it('binding', () => {
+    assert.deepStrictEqual(O.binding(bind => {
+      const number1 = bind(O.some(5))
+      const number2 = bind(O.some(10))
+      return O.some(number1 + number2)
+    }), O.some(15))
+
+    const getNumber = (): O.Option<number> => O.none
+    assert.deepStrictEqual(O.binding(bind => {
+      const number1 = bind(O.some(5))
+      const number2 = bind(getNumber())
+      return O.some(number1 + number2)
+    }), O.none)
+  })
+
+  it('binding (exception)', () => {
+    try {
+      O.binding(_bind => {
+        throw Error('Pass through')
+      })
+    } catch (e) {
+      assert.deepStrictEqual(e, Error('Pass through'))
+    }
+  })
 })
